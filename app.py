@@ -224,7 +224,10 @@ def search_google_places(food):
         timeout=20
     )
 
-    response.raise_for_status()
+    if not response.ok:
+    st.error(f"Google API 오류: {response.status_code}")
+    st.code(response.text)
+    st.stop()
 
     places = response.json().get("places", [])
 
