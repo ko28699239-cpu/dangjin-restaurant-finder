@@ -301,71 +301,57 @@ def calc_age_score(age):
     return age / 30 * 100
 
 # =========================================================
-# [27] 상단 히어로 영역 디자인
-# - 서비스 제목
-# - 설명 문구
-# - 배경 카드
-# - 모바일에서도 보기 좋은 첫 화면
+# [27 수정] 상단 히어로 영역
+# HTML이 그대로 노출되지 않도록 단순한 구조 사용
 # =========================================================
 
 st.markdown(
     """
     <style>
-
-    .hero-box {
+    .hero-wrap {
+        background: linear-gradient(135deg, #fff7f2 0%, #ffffff 100%);
+        border: 1px solid #f1dfd5;
+        border-radius: 24px;
         padding: 28px 30px;
-        border-radius: 22px;
-        background:
-            linear-gradient(
-                135deg,
-                rgba(255, 245, 238, 1),
-                rgba(255, 255, 255, 1)
-            );
-        border: 1px solid #f0e6df;
         margin-bottom: 24px;
-    }
-
-    .hero-title {
-        font-size: 2.3rem;
-        font-weight: 800;
-        margin-bottom: 10px;
-        letter-spacing: -0.03em;
-    }
-
-    .hero-desc {
-        font-size: 1.05rem;
-        line-height: 1.7;
-        color: #555;
-        margin-bottom: 0;
     }
 
     .hero-badge {
         display: inline-block;
+        background: #ffe9df;
         padding: 6px 12px;
-        margin-bottom: 12px;
         border-radius: 999px;
-        background: #fff0eb;
-        font-size: 0.9rem;
         font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 12px;
     }
 
+    .hero-title {
+        font-size: 38px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        letter-spacing: -1px;
+    }
+
+    .hero-desc {
+        font-size: 17px;
+        color: #555;
+        line-height: 1.6;
+    }
     </style>
+    """,
+    unsafe_allow_html=True
+)
 
-    <div class="hero-box">
-
-        <div class="hero-badge">
-            📍 당진 맛집 추천
-        </div>
-
-        <div class="hero-title">
-            오늘 어디서 먹을까?
-        </div>
-
+st.markdown(
+    """
+    <div class="hero-wrap">
+        <div class="hero-badge">📍 당진 맛집 추천</div>
+        <div class="hero-title">오늘 어디서 먹을까?</div>
         <div class="hero-desc">
             Google 평점 · 리뷰 수 · 업력을 함께 분석해<br>
             내 기준에 맞는 당진 맛집을 찾아드립니다.
         </div>
-
     </div>
     """,
     unsafe_allow_html=True
