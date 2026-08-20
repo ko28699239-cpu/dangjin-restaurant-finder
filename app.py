@@ -378,53 +378,7 @@ if "selected_food" not in st.session_state:
     st.session_state.selected_food = "백반"
 
 
-# ---------------------------------------------------------
-# 메뉴 버튼 디자인
-# ---------------------------------------------------------
 
-st.markdown(
-    """
-    <style>
-
-    div.stButton > button {
-        min-height: 92px;
-        border-radius: 18px;
-        border: 1px solid #eeeeee;
-        background: #ffffff;
-        font-size: 16px;
-        font-weight: 700;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-        transition: all 0.18s ease;
-        white-space: pre-line;
-    }
-
-    div.stButton > button:hover {
-        border-color: #ff6b3d;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(255,107,61,0.13);
-    }
-
-    div.stButton > button[kind="primary"] {
-        background: linear-gradient(
-            135deg,
-            #ff7a4f,
-            #ff4f2c
-        );
-        color: white;
-        border: none;
-    }
-
-    .menu-category {
-        font-size: 18px;
-        font-weight: 800;
-        margin-top: 20px;
-        margin-bottom: 8px;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 # ---------------------------------------------------------
 # 카테고리별 메뉴 버튼 출력
@@ -446,15 +400,77 @@ for category, foods in food_categories.items():
 
             selected = (
                 st.session_state.selected_food == food_name
-            )
+            )# =========================================================
+# 메뉴 카드 버튼 디자인 개선
+# - 버튼 높이 축소
+# - 아이콘 + 메뉴명 세로 정렬
+# - 선택 버튼 강조
+# =========================================================
 
+st.markdown(
+    """
+    <style>
+
+    div.stButton > button {
+        min-height: 76px;
+        border-radius: 16px;
+        border: 1px solid #eeeeee;
+        background: #ffffff;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.25;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.045);
+        transition: all 0.16s ease;
+        white-space: pre-line;
+        padding: 10px 8px;
+    }
+
+    div.stButton > button:hover {
+        border-color: #ff7448;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(255,116,72,0.12);
+    }
+
+    div.stButton > button[kind="primary"] {
+        background: linear-gradient(
+            135deg,
+            #ff7b50 0%,
+            #ff4e2a 100%
+        );
+        color: white;
+        border: none;
+        box-shadow: 0 6px 16px rgba(255,78,42,0.22);
+    }
+
+    div.stButton > button[kind="primary"]:hover {
+        color: white;
+        border: none;
+    }
+
+    .menu-category {
+        font-size: 18px;
+        font-weight: 800;
+        margin-top: 18px;
+        margin-bottom: 7px;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+if selected:
+    button_text = f"{icon}\n✓ {food_name}"
+    button_type = "primary"
+else:
+    button_text = f"{icon}\n{food_name}"
+    button_type = "secondary"
             if selected:
                 button_text = f"✓ {food_name}"
                 button_type = "primary"
             else:
                 button_text = food_name
                 button_type = "secondary"
-
             if st.button(
                 button_text,
                 key=f"food_{category}_{food_name}",
