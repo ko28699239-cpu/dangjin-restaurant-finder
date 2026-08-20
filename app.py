@@ -315,13 +315,13 @@ st.markdown(
     <style>
     /* 상단 이미지와 메뉴 영역 간격 */
     [data-testid="stImage"] {
-        margin-bottom: 1.2rem;
+        margin-bottom: 0.2rem;
     }
 
     /* 전체 페이지 폭과 여백 정리 */
     .block-container {
         max-width: 1400px;
-        padding-top: 1.5rem;
+        padding-top: 0.5rem;
         padding-bottom: 3rem;
     }
     </style>
