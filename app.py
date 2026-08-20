@@ -1,4 +1,4 @@
-
+    
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -459,12 +459,12 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-if selected:
-    button_text = f"{icon}\n✓ {food_name}"
-    button_type = "primary"
-else:
-    button_text = f"{icon}\n{food_name}"
-    button_type = "secondary"
+            if selected:
+                button_text = f"{icon}\n✓ {food_name}"
+                button_type = "primary"
+            else:
+                button_text = f"{icon}\n{food_name}"
+                button_type = "secondary"
             if selected:
                 button_text = f"✓ {food_name}"
                 button_type = "primary"
