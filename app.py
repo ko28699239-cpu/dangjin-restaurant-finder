@@ -459,18 +459,34 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-            if selected:
-                button_text = f"{icon}\n✓ {food_name}"
-                button_type = "primary"
-            else:
-                button_text = f"{icon}\n{food_name}"
-                button_type = "secondary"
+       # ---------------------------------------------------------
+# 카테고리별 실제 메뉴 버튼 출력
+# ---------------------------------------------------------
+
+for category, foods in food_categories.items():
+
+    st.markdown(
+        f'<div class="menu-category">{category}</div>',
+        unsafe_allow_html=True
+    )
+
+    cols = st.columns(min(len(foods), 7))
+
+    for i, food_name in enumerate(foods):
+
+        with cols[i % len(cols)]:
+
+            selected = (
+                st.session_state.selected_food == food_name
+            )
+
             if selected:
                 button_text = f"✓ {food_name}"
                 button_type = "primary"
             else:
                 button_text = food_name
                 button_type = "secondary"
+
             if st.button(
                 button_text,
                 key=f"food_{category}_{food_name}",
@@ -478,8 +494,7 @@ st.markdown(
                 use_container_width=True
             ):
                 st.session_state.selected_food = food_name
-                st.rerun()
-
+                st.rerun()   
 
 # ---------------------------------------------------------
 # 직접 입력
