@@ -384,23 +384,7 @@ if "selected_food" not in st.session_state:
 # 카테고리별 메뉴 버튼 출력
 # ---------------------------------------------------------
 
-for category, foods in food_categories.items():
-
-    st.markdown(
-        f'<div class="food-category-title">{category}</div>',
-        unsafe_allow_html=True
-    )
-
-    # 한 줄 최대 7개
-    cols = st.columns(min(len(foods), 7))
-
-    for i, food_name in enumerate(foods):
-
-        with cols[i % len(cols)]:
-
-            selected = (
-                st.session_state.selected_food == food_name
-            )# =========================================================
+# =========================================================
 # 메뉴 카드 버튼 디자인 개선
 # - 버튼 높이 축소
 # - 아이콘 + 메뉴명 세로 정렬
