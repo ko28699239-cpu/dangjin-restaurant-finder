@@ -328,82 +328,125 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# ---------------------------------------------------------
-# 음식 선택 - 카테고리별 전체 메뉴 버튼
-# ---------------------------------------------------------
 
-st.subheader("🍽️ 먹고 싶은 메뉴를 골라보세요")
+# =========================================================
+# [메뉴 UI] 실제 클릭 가능한 카드형 메뉴
+# 상단 hero_dangjin.png는 이미지로 유지
+# 아래 메뉴는 실제 Streamlit 버튼으로 동작
+# =========================================================
+
+st.markdown("## 🍴 먹고 싶은 메뉴를 골라보세요")
 
 food_categories = {
     "🍚 한식": [
-        "백반", "한정식", "제육볶음", "닭볶음탕",
-        "어죽", "매운탕", "추어탕"
+        ("🍚", "백반"),
+        ("🍱", "한정식"),
+        ("🥘", "제육볶음"),
+        ("🍲", "닭볶음탕"),
+        ("🥣", "어죽"),
+        ("🍲", "매운탕"),
+        ("🥘", "추어탕"),
     ],
 
     "🍜 면요리": [
-        "칼국수", "콩국수", "냉면", "막국수"
+        ("🍜", "칼국수"),
+        ("🥣", "콩국수"),
+        ("🍜", "냉면"),
+        ("🍝", "막국수"),
     ],
 
     "🥩 고기": [
-        "삼겹살", "돼지갈비", "한우", "소갈비",
-        "곱창", "족발", "보쌈"
+        ("🥓", "삼겹살"),
+        ("🍖", "돼지갈비"),
+        ("🥩", "한우"),
+        ("🍖", "소갈비"),
+        ("🥘", "곱창"),
+        ("🍖", "족발"),
+        ("🥩", "보쌈"),
     ],
 
     "🍲 국밥·탕": [
-        "돼지국밥", "순대국", "설렁탕",
-        "곰탕", "갈비탕", "삼계탕"
+        ("🍲", "돼지국밥"),
+        ("🥣", "순대국"),
+        ("🍲", "설렁탕"),
+        ("🥣", "곰탕"),
+        ("🍖", "갈비탕"),
+        ("🐔", "삼계탕"),
     ],
 
     "🐟 해산물": [
-        "회", "조개구이", "해물탕",
-        "아귀찜", "장어", "게국지"
+        ("🐟", "회"),
+        ("🦪", "조개구이"),
+        ("🦐", "해물탕"),
+        ("🐟", "아귀찜"),
+        ("🐠", "장어"),
+        ("🦀", "게국지"),
     ],
 
     "🥢 중식·일식": [
-        "짬뽕", "짜장면", "탕수육", "마라탕",
-        "초밥", "돈카츠", "우동"
+        ("🍜", "짬뽕"),
+        ("🍜", "짜장면"),
+        ("🥟", "탕수육"),
+        ("🌶️", "마라탕"),
+        ("🍣", "초밥"),
+        ("🍱", "돈카츠"),
+        ("🍜", "우동"),
     ],
 
     "🍕 양식·분식": [
-        "파스타", "피자", "떡볶이"
-    ]
+        ("🍝", "파스타"),
+        ("🍕", "피자"),
+        ("🌶️", "떡볶이"),
+    ],
 }
 
 
-# ---------------------------------------------------------
-# 선택 메뉴 기억
-# ---------------------------------------------------------
-
+# -----------------------------
+# 선택 메뉴 저장
+# -----------------------------
 if "selected_food" not in st.session_state:
     st.session_state.selected_food = "백반"
 
 
-# ---------------------------------------------------------
-# 메뉴 버튼 디자인
-# ---------------------------------------------------------
-
+# -----------------------------
+# 카드 버튼 디자인
+# -----------------------------
 st.markdown(
     """
     <style>
 
     div.stButton > button {
-        border-radius: 14px;
-        min-height: 46px;
+        min-height: 72px;
+        border-radius: 16px;
+        border: 1px solid #ececec;
+        background: white;
+        font-size: 15px;
         font-weight: 600;
-        border: 1px solid #e2e2e2;
-        transition: 0.15s;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+        transition: all 0.15s ease;
     }
 
     div.stButton > button:hover {
-        border-color: #ff4b4b;
-        transform: translateY(-1px);
+        border-color: #ff6b3d;
+        box-shadow: 0 5px 14px rgba(255,107,61,0.14);
+        transform: translateY(-2px);
     }
 
-    .food-category-title {
-        font-size: 1.05rem;
-        font-weight: 700;
-        margin-top: 18px;
-        margin-bottom: 7px;
+    div.stButton > button[kind="primary"] {
+        background: linear-gradient(
+            135deg,
+            #ff7548,
+            #ff4d27
+        );
+        color: white;
+        border: none;
+    }
+
+    .menu-category {
+        font-size: 18px;
+        font-weight: 750;
+        margin-top: 22px;
+        margin-bottom: 8px;
     }
 
     </style>
@@ -412,69 +455,57 @@ st.markdown(
 )
 
 
-# ---------------------------------------------------------
-# 카테고리별 메뉴 버튼 출력
-# ---------------------------------------------------------
-
+# -----------------------------
+# 실제 메뉴 버튼 출력
+# -----------------------------
 for category, foods in food_categories.items():
 
     st.markdown(
-        f'<div class="food-category-title">{category}</div>',
+        f'<div class="menu-category">{category}</div>',
         unsafe_allow_html=True
     )
 
-    # 한 줄 최대 7개
-    cols = st.columns(min(len(foods), 7))
+    cols = st.columns(len(foods))
 
-    for i, food_name in enumerate(foods):
+    for i, (icon, food_name) in enumerate(foods):
 
-        with cols[i % len(cols)]:
+        selected = (
+            st.session_state.selected_food == food_name
+        )
 
-            selected = (
-                st.session_state.selected_food == food_name
-            )
+        label = (
+            f"{icon}\n\n✓ {food_name}"
+            if selected
+            else f"{icon}\n\n{food_name}"
+        )
 
-            if selected:
-                button_text = f"✓ {food_name}"
-                button_type = "primary"
-            else:
-                button_text = food_name
-                button_type = "secondary"
+        with cols[i]:
 
             if st.button(
-                button_text,
-                key=f"food_{category}_{food_name}",
-                type=button_type,
+                label,
+                key=f"menu_{food_name}",
+                type="primary" if selected else "secondary",
                 use_container_width=True
             ):
                 st.session_state.selected_food = food_name
                 st.rerun()
 
 
-# ---------------------------------------------------------
-# 직접 입력
-# ---------------------------------------------------------
-
-st.markdown(
-    '<div class="food-category-title">🔎 다른 음식 직접 검색</div>',
-    unsafe_allow_html=True
-)
+# -----------------------------
+# 직접 검색
+# -----------------------------
+st.markdown("### 🔎 다른 음식 직접 검색")
 
 custom_food = st.text_input(
-    "직접 검색",
+    "음식 직접 입력",
     placeholder="예: 닭갈비, 샤브샤브, 민물새우탕",
     label_visibility="collapsed"
 )
 
-
-# 직접 입력값이 있으면 직접 입력 우선
 if custom_food.strip():
     food = custom_food.strip()
 else:
     food = st.session_state.selected_food
-
-
-st.caption(f"현재 선택 메뉴: **{food}**")
 
 # -----------------------------
 # 가중치 설정
