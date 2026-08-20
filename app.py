@@ -20,7 +20,7 @@ API_KEY = st.secrets["GOOGLE_PLACES_API_KEY"]
 
 # Colab에 업로드된 CSV 자동 탐색
 import glob
-csv_files = glob.glob("/content/*.csv")
+csv_files = glob.glob("*.csv")
 
 if not csv_files:
     st.error("당진 음식점 CSV 파일을 찾을 수 없습니다.")
