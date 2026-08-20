@@ -300,20 +300,76 @@ def calc_age_score(age):
 
     return age / 30 * 100
 
-
 # =========================================================
-# 웹 화면
+# [27] 상단 히어로 영역 디자인
+# - 서비스 제목
+# - 설명 문구
+# - 배경 카드
+# - 모바일에서도 보기 좋은 첫 화면
 # =========================================================
 
-st.title("🍲 당진 맛집 찾기")
+st.markdown(
+    """
+    <style>
 
-st.caption(
-    "Google 평점 · 리뷰 수 · 업력을 조합해 "
-    "내 기준에 맞는 맛집을 찾아보세요."
+    .hero-box {
+        padding: 28px 30px;
+        border-radius: 22px;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(255, 245, 238, 1),
+                rgba(255, 255, 255, 1)
+            );
+        border: 1px solid #f0e6df;
+        margin-bottom: 24px;
+    }
+
+    .hero-title {
+        font-size: 2.3rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+        letter-spacing: -0.03em;
+    }
+
+    .hero-desc {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: #555;
+        margin-bottom: 0;
+    }
+
+    .hero-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 12px;
+        border-radius: 999px;
+        background: #fff0eb;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    </style>
+
+    <div class="hero-box">
+
+        <div class="hero-badge">
+            📍 당진 맛집 추천
+        </div>
+
+        <div class="hero-title">
+            오늘 어디서 먹을까?
+        </div>
+
+        <div class="hero-desc">
+            Google 평점 · 리뷰 수 · 업력을 함께 분석해<br>
+            내 기준에 맞는 당진 맛집을 찾아드립니다.
+        </div>
+
+    </div>
+    """,
+    unsafe_allow_html=True
 )
-
-st.divider()
-
 
 # ---------------------------------------------------------
 # 음식 선택 - 카테고리별 전체 메뉴 버튼
