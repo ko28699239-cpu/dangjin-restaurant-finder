@@ -387,30 +387,44 @@ st.markdown(
     <style>
 
     div.stButton > button {
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 600;
-        border: 1px solid #e2e2e2;
-        transition: 0.15s;
+        min-height: 92px;
+        border-radius: 18px;
+        border: 1px solid #eeeeee;
+        background: #ffffff;
+        font-size: 16px;
+        font-weight: 700;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+        transition: all 0.18s ease;
+        white-space: pre-line;
     }
 
     div.stButton > button:hover {
-        border-color: #ff4b4b;
-        transform: translateY(-1px);
+        border-color: #ff6b3d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255,107,61,0.13);
     }
 
-    .food-category-title {
-        font-size: 1.05rem;
-        font-weight: 700;
-        margin-top: 18px;
-        margin-bottom: 7px;
+    div.stButton > button[kind="primary"] {
+        background: linear-gradient(
+            135deg,
+            #ff7a4f,
+            #ff4f2c
+        );
+        color: white;
+        border: none;
+    }
+
+    .menu-category {
+        font-size: 18px;
+        font-weight: 800;
+        margin-top: 20px;
+        margin-bottom: 8px;
     }
 
     </style>
     """,
     unsafe_allow_html=True
 )
-
 
 # ---------------------------------------------------------
 # 카테고리별 메뉴 버튼 출력
