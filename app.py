@@ -315,109 +315,153 @@ st.caption(
 st.divider()
 
 
-# -----------------------------
-# 음식 선택
-# -----------------------------
-st.subheader("🍽️ 음식 선택")
+# ---------------------------------------------------------
+# 음식 선택 - 카테고리별 전체 메뉴 버튼
+# ---------------------------------------------------------
 
-# -----------------------------
-# 7개 음식 대분류
-# -----------------------------
+st.subheader("🍽️ 먹고 싶은 메뉴를 골라보세요")
+
 food_categories = {
-
     "🍚 한식": [
-        "백반",
-        "한정식",
-        "제육볶음",
-        "닭볶음탕",
-        "어죽",
-        "매운탕",
-        "추어탕"
+        "백반", "한정식", "제육볶음", "닭볶음탕",
+        "어죽", "매운탕", "추어탕"
     ],
 
-    "🍜 면": [
-        "칼국수",
-        "콩국수",
-        "냉면",
-        "막국수"
+    "🍜 면요리": [
+        "칼국수", "콩국수", "냉면", "막국수"
     ],
 
     "🥩 고기": [
-        "삼겹살",
-        "돼지갈비",
-        "한우",
-        "소갈비",
-        "곱창",
-        "족발",
-        "보쌈"
+        "삼겹살", "돼지갈비", "한우", "소갈비",
+        "곱창", "족발", "보쌈"
     ],
 
     "🍲 국밥·탕": [
-        "돼지국밥",
-        "순대국",
-        "설렁탕",
-        "곰탕",
-        "갈비탕",
-        "삼계탕"
+        "돼지국밥", "순대국", "설렁탕",
+        "곰탕", "갈비탕", "삼계탕"
     ],
 
     "🐟 해산물": [
-        "회",
-        "조개구이",
-        "해물탕",
-        "아귀찜",
-        "장어",
-        "게국지"
+        "회", "조개구이", "해물탕",
+        "아귀찜", "장어", "게국지"
     ],
 
     "🥢 중식·일식": [
-        "짬뽕",
-        "짜장면",
-        "탕수육",
-        "마라탕",
-        "초밥",
-        "돈카츠",
-        "우동"
+        "짬뽕", "짜장면", "탕수육", "마라탕",
+        "초밥", "돈카츠", "우동"
     ],
 
     "🍕 양식·분식": [
-        "파스타",
-        "피자",
-        "떡볶이"
+        "파스타", "피자", "떡볶이"
     ]
 }
 
 
-# -----------------------------
-# 1단계 - 대분류 선택
-# -----------------------------
-category_options = (
-    list(food_categories.keys())
-    + ["🔎 직접 입력"]
+# ---------------------------------------------------------
+# 선택 메뉴 기억
+# ---------------------------------------------------------
+
+if "selected_food" not in st.session_state:
+    st.session_state.selected_food = "백반"
+
+
+# ---------------------------------------------------------
+# 메뉴 버튼 디자인
+# ---------------------------------------------------------
+
+st.markdown(
+    """
+    <style>
+
+    div.stButton > button {
+        border-radius: 14px;
+        min-height: 46px;
+        font-weight: 600;
+        border: 1px solid #e2e2e2;
+        transition: 0.15s;
+    }
+
+    div.stButton > button:hover {
+        border-color: #ff4b4b;
+        transform: translateY(-1px);
+    }
+
+    .food-category-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-top: 18px;
+        margin-bottom: 7px;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
-selected_category = st.selectbox(
-    "음식 종류를 선택하세요",
-    category_options
-)
 
+# ---------------------------------------------------------
+# 카테고리별 메뉴 버튼 출력
+# ---------------------------------------------------------
 
-# -----------------------------
-# 2단계 - 세부 음식 선택
-# -----------------------------
-if selected_category == "🔎 직접 입력":
+for category, foods in food_categories.items():
 
-    food = st.text_input(
-        "찾고 싶은 음식을 입력하세요",
-        placeholder="예: 닭갈비, 샤브샤브, 민물새우탕"
+    st.markdown(
+        f'<div class="food-category-title">{category}</div>',
+        unsafe_allow_html=True
     )
 
+    # 한 줄 최대 7개
+    cols = st.columns(min(len(foods), 7))
+
+    for i, food_name in enumerate(foods):
+
+        with cols[i % len(cols)]:
+
+            selected = (
+                st.session_state.selected_food == food_name
+            )
+
+            if selected:
+                button_text = f"✓ {food_name}"
+                button_type = "primary"
+            else:
+                button_text = food_name
+                button_type = "secondary"
+
+            if st.button(
+                button_text,
+                key=f"food_{category}_{food_name}",
+                type=button_type,
+                use_container_width=True
+            ):
+                st.session_state.selected_food = food_name
+                st.rerun()
+
+
+# ---------------------------------------------------------
+# 직접 입력
+# ---------------------------------------------------------
+
+st.markdown(
+    '<div class="food-category-title">🔎 다른 음식 직접 검색</div>',
+    unsafe_allow_html=True
+)
+
+custom_food = st.text_input(
+    "직접 검색",
+    placeholder="예: 닭갈비, 샤브샤브, 민물새우탕",
+    label_visibility="collapsed"
+)
+
+
+# 직접 입력값이 있으면 직접 입력 우선
+if custom_food.strip():
+    food = custom_food.strip()
 else:
+    food = st.session_state.selected_food
 
-    food = st.selectbox(
-        "먹고 싶은 음식을 선택하세요",
-        food_categories[selected_category]
-    )
+
+st.caption(f"현재 선택 메뉴: **{food}**")
 
 # -----------------------------
 # 가중치 설정
