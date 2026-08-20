@@ -301,62 +301,33 @@ def calc_age_score(age):
     return age / 30 * 100
 
 # =========================================================
-# [27 수정] 상단 히어로 영역
-# HTML이 그대로 노출되지 않도록 단순한 구조 사용
+# [27] 상단 메인 이미지
+# GitHub 저장소의 hero_dangjin.png 사용
 # =========================================================
+
+st.image(
+    "hero_dangjin.png",
+    use_container_width=True
+)
 
 st.markdown(
     """
     <style>
-    .hero-wrap {
-        background: linear-gradient(135deg, #fff7f2 0%, #ffffff 100%);
-        border: 1px solid #f1dfd5;
-        border-radius: 24px;
-        padding: 28px 30px;
-        margin-bottom: 24px;
+    /* 상단 이미지와 메뉴 영역 간격 */
+    [data-testid="stImage"] {
+        margin-bottom: 1.2rem;
     }
 
-    .hero-badge {
-        display: inline-block;
-        background: #ffe9df;
-        padding: 6px 12px;
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 14px;
-        margin-bottom: 12px;
-    }
-
-    .hero-title {
-        font-size: 38px;
-        font-weight: 800;
-        margin-bottom: 8px;
-        letter-spacing: -1px;
-    }
-
-    .hero-desc {
-        font-size: 17px;
-        color: #555;
-        line-height: 1.6;
+    /* 전체 페이지 폭과 여백 정리 */
+    .block-container {
+        max-width: 1400px;
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
-
-st.markdown(
-    """
-    <div class="hero-wrap">
-        <div class="hero-badge">📍 당진 맛집 추천</div>
-        <div class="hero-title">오늘 어디서 먹을까?</div>
-        <div class="hero-desc">
-            Google 평점 · 리뷰 수 · 업력을 함께 분석해<br>
-            내 기준에 맞는 당진 맛집을 찾아드립니다.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
 # ---------------------------------------------------------
 # 음식 선택 - 카테고리별 전체 메뉴 버튼
 # ---------------------------------------------------------
