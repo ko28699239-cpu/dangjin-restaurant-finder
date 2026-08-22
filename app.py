@@ -1124,185 +1124,185 @@ if st.button(
 
             ).round(1)
     
-    # -------------------------
-    # 60점 이상 / 최대 20개
-    # -------------------------
-    result_df = (
-        google_df[
-            google_df["종합점수"] >= 60
-        ]
-        .sort_values(
-            "종합점수",
-            ascending=False
-        )
-        .head(20)
-        .reset_index(drop=True)
-    )
-    
-    result_df["순위"] = (
-        result_df.index + 1
-    )
-    
-    
-    # -------------------------
-    # 업력 화면 표시
-    # -------------------------
-    result_df["업력 표시"] = (
-        result_df["업력"]
-        .apply(
-            lambda x:
-            f"{x:.1f}년"
-            if pd.notna(x)
-            else "정보 없음"
-        )
-    )
-    
-    
-    # -------------------------
-    # Google Maps URL
-    # -------------------------
-    result_df["지도"] = (
-        result_df.apply(
-            lambda row:
-            "https://www.google.com/maps/search/?api=1"
-            "&query="
-            + urllib.parse.quote(
-                row["식당명"]
-                + " "
-                + row["주소"]
-            )
-            + "&query_place_id="
-            + row["Place ID"],
-            axis=1
-        )
-    )
-    
-    
-    # -------------------------
-    # 소비자용 출력
-    # -------------------------
-    consumer_df = result_df[
-        [
-            "순위",
-            "식당명",
-            "Google 평점",
-            "리뷰 수",
-            "업력 표시",
-            "종합점수",
-            "주소",
-            "지도"
-        ]
-    ].copy()
-    
-    consumer_df.columns = [
-        "순위",
-        "식당명",
-        "Google 평점",
-        "리뷰 수",
-        "업력",
-        "종합점수",
-        "주소",
-        "지도"
-    ]
-    
-    st.success(
-        f"{food} 추천 맛집 "
-        f"{len(consumer_df)}곳입니다."
-    )
-
-# =====================================
-# 소비자용 카드형 결과 + 대표사진
-# =====================================
-
-st.subheader("🏆 추천 맛집 순위")
-
-for _, row in result_df.iterrows():
-
-    rank = int(row["순위"])
-    name = str(row["식당명"])
-    rating = row["Google 평점"]
-    reviews = int(row["리뷰 수"])
-
-    age = (
-        f"{row['업력']:.1f}년"
-        if pd.notna(row["업력"])
-        else "정보 없음"
-    )
-
-    score = float(row["종합점수"])
-    address = str(row["주소"])
-    map_url = str(row["지도"])
-    photo_url = str(row.get("대표사진", ""))
-
-    if rank == 1:
-        rank_icon = "🥇"
-    elif rank == 2:
-        rank_icon = "🥈"
-    elif rank == 3:
-        rank_icon = "🥉"
-    else:
-        rank_icon = f"{rank}위"
-
-    with st.container(border=True):
-
-        image_col, info_col = st.columns(
-            [1.4, 3.6]
-        )
-
-        with image_col:
-
-            if photo_url:
-                st.image(
-                    photo_url,
-                    use_container_width=True
-                )
-            else:
-                st.markdown(
-                    "📷 대표사진 없음"
-                )
-
-        with info_col:
-
-            st.markdown(
-                f"### {rank_icon} [{name}]({map_url})"
-            )
-
-            metric1, metric2, metric3 = st.columns(3)
-
-            with metric1:
-                st.metric(
-                    "Google 평점",
-                    f"{rating:.1f}"
-                )
-
-            with metric2:
-                st.metric(
-                    "리뷰",
-                    f"{reviews:,}개"
-                )
-
-            with metric3:
-                st.metric(
+            # -------------------------
+            # 60점 이상 / 최대 20개
+            # -------------------------
+            result_df = (
+                google_df[
+                    google_df["종합점수"] >= 60
+                ]
+                .sort_values(
                     "종합점수",
-                    f"{score:.1f}"
+                    ascending=False
                 )
-
-            st.markdown(
-                f"🕰 **업력:** {age}"
+                .head(20)
+                .reset_index(drop=True)
             )
-
-            st.caption(address)
-
-            st.link_button(
-                "📍 Google 지도에서 보기",
-                map_url,
-                use_container_width=True
+            
+            result_df["순위"] = (
+                result_df.index + 1
             )
-
-st.caption(
-    "업력은 행정 인허가일 기준입니다. "
-    "업력 정보가 없는 식당은 내부 계산에서 "
-    "중립점수 50점을 적용합니다."
-)
-
-
+            
+    
+            # -------------------------
+            # 업력 화면 표시
+            # -------------------------
+            result_df["업력 표시"] = (
+                result_df["업력"]
+                .apply(
+                    lambda x:
+                    f"{x:.1f}년"
+                    if pd.notna(x)
+                    else "정보 없음"
+                )
+            )
+            
+            
+            # -------------------------
+            # Google Maps URL
+            # -------------------------
+            result_df["지도"] = (
+                result_df.apply(
+                    lambda row:
+                    "https://www.google.com/maps/search/?api=1"
+                    "&query="
+                    + urllib.parse.quote(
+                        row["식당명"]
+                        + " "
+                        + row["주소"]
+                    )
+                    + "&query_place_id="
+                    + row["Place ID"],
+                    axis=1
+                )
+            )
+            
+            
+            # -------------------------
+            # 소비자용 출력
+            # -------------------------
+            consumer_df = result_df[
+                [
+                    "순위",
+                    "식당명",
+                    "Google 평점",
+                    "리뷰 수",
+                    "업력 표시",
+                    "종합점수",
+                    "주소",
+                    "지도"
+                ]
+            ].copy()
+            
+            consumer_df.columns = [
+                "순위",
+                "식당명",
+                "Google 평점",
+                "리뷰 수",
+                "업력",
+                "종합점수",
+                "주소",
+                "지도"
+            ]
+            
+            st.success(
+                f"{food} 추천 맛집 "
+                f"{len(consumer_df)}곳입니다."
+            )
+        
+        # =====================================
+        # 소비자용 카드형 결과 + 대표사진
+        # =====================================
+        
+        st.subheader("🏆 추천 맛집 순위")
+        
+        for _, row in result_df.iterrows():
+        
+            rank = int(row["순위"])
+            name = str(row["식당명"])
+            rating = row["Google 평점"]
+            reviews = int(row["리뷰 수"])
+        
+            age = (
+                f"{row['업력']:.1f}년"
+                if pd.notna(row["업력"])
+                else "정보 없음"
+            )
+        
+            score = float(row["종합점수"])
+            address = str(row["주소"])
+            map_url = str(row["지도"])
+            photo_url = str(row.get("대표사진", ""))
+        
+            if rank == 1:
+                rank_icon = "🥇"
+            elif rank == 2:
+                rank_icon = "🥈"
+            elif rank == 3:
+                rank_icon = "🥉"
+            else:
+                rank_icon = f"{rank}위"
+        
+            with st.container(border=True):
+        
+                image_col, info_col = st.columns(
+                    [1.4, 3.6]
+                )
+        
+                with image_col:
+        
+                    if photo_url:
+                        st.image(
+                            photo_url,
+                            use_container_width=True
+                        )
+                    else:
+                        st.markdown(
+                            "📷 대표사진 없음"
+                        )
+        
+                with info_col:
+        
+                    st.markdown(
+                        f"### {rank_icon} [{name}]({map_url})"
+                    )
+        
+                    metric1, metric2, metric3 = st.columns(3)
+        
+                    with metric1:
+                        st.metric(
+                            "Google 평점",
+                            f"{rating:.1f}"
+                        )
+        
+                    with metric2:
+                        st.metric(
+                            "리뷰",
+                            f"{reviews:,}개"
+                        )
+        
+                    with metric3:
+                        st.metric(
+                            "종합점수",
+                            f"{score:.1f}"
+                        )
+        
+                    st.markdown(
+                        f"🕰 **업력:** {age}"
+                    )
+        
+                    st.caption(address)
+        
+                    st.link_button(
+                        "📍 Google 지도에서 보기",
+                        map_url,
+                        use_container_width=True
+                    )
+        
+        st.caption(
+            "업력은 행정 인허가일 기준입니다. "
+            "업력 정보가 없는 식당은 내부 계산에서 "
+            "중립점수 50점을 적용합니다."
+        )
+        
+        
