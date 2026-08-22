@@ -975,44 +975,44 @@ if st.button(
 # 행정 업태와 실제 매칭되는 Google 식당만 유지
 # ---------------------------------------------------------
 
-matched_rows = []
-
-for _, row in google_df.iterrows():
-
-    age_info = find_business_age(
-        row["식당명"],
-        row["주소"],
-        admin_df
-    )
-
-    # 선택한 행정 업태 데이터에서
-    # 실제 매칭된 식당만 검색 결과에 포함
-    if age_info:
-
-        matched_row = row.copy()
-
-        matched_row["업력"] = age_info["업력"]
-
-        matched_rows.append(matched_row)
-
-
-# 매칭된 식당만 새로운 DataFrame으로 구성
-google_df = pd.DataFrame(matched_rows)
-
-
-# 선택 업태에 해당하는 식당이 하나도 없을 경우
-if google_df.empty:
-
-    st.warning(
-        "선택한 음식점 종류에 해당하는 "
-        "식당을 찾지 못했습니다."
-    )
-
-    st.stop()
-
-
-# 인덱스 다시 정리
-google_df = google_df.reset_index(drop=True)
+            matched_rows = []
+            
+            for _, row in google_df.iterrows():
+            
+                age_info = find_business_age(
+                    row["식당명"],
+                    row["주소"],
+                    admin_df
+                )
+            
+                # 선택한 행정 업태 데이터에서
+                # 실제 매칭된 식당만 검색 결과에 포함
+                if age_info:
+            
+                    matched_row = row.copy()
+            
+                    matched_row["업력"] = age_info["업력"]
+            
+                    matched_rows.append(matched_row)
+            
+            
+            # 매칭된 식당만 새로운 DataFrame으로 구성
+            google_df = pd.DataFrame(matched_rows)
+            
+            
+            # 선택 업태에 해당하는 식당이 하나도 없을 경우
+            if google_df.empty:
+            
+                st.warning(
+                    "선택한 음식점 종류에 해당하는 "
+                    "식당을 찾지 못했습니다."
+                )
+            
+                st.stop()
+            
+            
+            # 인덱스 다시 정리
+            google_df = google_df.reset_index(drop=True)
 
 # -------------------------
 # 평점 기준점수
