@@ -345,13 +345,6 @@ def search_google_places(food, category):
 
     data = {
         "textQuery": text_query,
-
-        # 식당 종류부터 제한
-        "includedType": google_type,
-
-        # 다른 업종이 섞이지 않도록 강제
-        "strictTypeFiltering": True,
-
         "languageCode": "ko",
         "regionCode": "KR",
         "pageSize": 20
@@ -974,28 +967,52 @@ if st.button(
                 st.stop()
 
             admin_df = load_admin_data()
+            admin_df = filter_admin_by_category(
+                admin_df,
+                selected_category
+            )
+          # ---------------------------------------------------------
+# 행정 업태와 실제 매칭되는 Google 식당만 유지
+# ---------------------------------------------------------
 
-            ages = []
+matched_rows = []
 
-            for _, row in google_df.iterrows():
+for _, row in google_df.iterrows():
 
-                age_info = find_business_age(
-                    row["식당명"],
-                    row["주소"],
-                    admin_df
-                )
+    age_info = find_business_age(
+        row["식당명"],
+        row["주소"],
+        admin_df
+    )
 
-                if age_info:
-                    ages.append(
-                        age_info["업력"]
-                    )
-                else:
-                    ages.append(
-                        np.nan
-                    )
+    # 선택한 행정 업태 데이터에서
+    # 실제 매칭된 식당만 검색 결과에 포함
+    if age_info:
 
-            google_df["업력"] = ages
+        matched_row = row.copy()
 
+        matched_row["업력"] = age_info["업력"]
+
+        matched_rows.append(matched_row)
+
+
+# 매칭된 식당만 새로운 DataFrame으로 구성
+google_df = pd.DataFrame(matched_rows)
+
+
+# 선택 업태에 해당하는 식당이 하나도 없을 경우
+if google_df.empty:
+
+    st.warning(
+        "선택한 음식점 종류에 해당하는 "
+        "식당을 찾지 못했습니다."
+    )
+
+    st.stop()
+
+
+# 인덱스 다시 정리
+google_df = google_df.reset_index(drop=True)
 
             # -------------------------
             # 평점 기준점수
