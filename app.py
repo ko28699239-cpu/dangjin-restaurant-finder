@@ -1017,13 +1017,13 @@ google_df = google_df.reset_index(drop=True)
 # -------------------------
 # 평점 기준점수
 # -------------------------
- google_df["평점기준점수"] = (
-    pd.to_numeric(
-          google_df["Google 평점"],
-         errors="coerce"
-    )
-    / 5
-    * 100
+google_df["평점기준점수"] = (
+pd.to_numeric(
+      google_df["Google 평점"],
+     errors="coerce"
+)
+/ 5
+* 100
 )
 
 # -------------------------
