@@ -931,12 +931,19 @@ else:
 # -----------------------------
 st.divider()
 
+# ---------------------------------------------------------
+# 맛집 검색 실행
+# ---------------------------------------------------------
+
 if st.button(
     "🔎 맛집 찾기",
     type="primary",
     use_container_width=True
 ):
 
+    # -----------------------------------------------------
+    # 입력값 / 가중치 확인
+    # -----------------------------------------------------
     if not food:
 
         st.warning("음식을 입력해주세요.")
@@ -953,6 +960,10 @@ if st.button(
             f"당진의 {food} 맛집을 찾고 있습니다..."
         ):
 
+            # -------------------------------------------------
+            # 1. Google Places 검색
+            # 음식명 + 선택 대분류를 함께 전달
+            # -------------------------------------------------
             google_df = search_google_places(
                 food.strip(),
                 selected_category
@@ -966,210 +977,238 @@ if st.button(
 
                 st.stop()
 
+
+            # -------------------------------------------------
+            # 2. 당진 행정데이터 로드
+            # -------------------------------------------------
             admin_df = load_admin_data()
+
+
+            # -------------------------------------------------
+            # 3. 선택한 업태구분명으로 행정데이터 제한
+            #
+            # 예:
+            # 중국식 -> 중국식
+            # 일식 -> 일식
+            # 식육(숯불구이) -> 식육(숯불구이)
+            # 호프/통닭 -> 호프/통닭 + 통닭(치킨)
+            # -------------------------------------------------
             admin_df = filter_admin_by_category(
                 admin_df,
                 selected_category
             )
-          # ---------------------------------------------------------
-# 행정 업태와 실제 매칭되는 Google 식당만 유지
-# ---------------------------------------------------------
 
+
+            # -------------------------------------------------
+            # 4. Google 결과 중
+            #    선택 업태의 행정데이터와 실제 매칭되는
+            #    식당만 유지
+            # -------------------------------------------------
             matched_rows = []
-            
+
             for _, row in google_df.iterrows():
-            
+
                 age_info = find_business_age(
                     row["식당명"],
                     row["주소"],
                     admin_df
                 )
-            
-                # 선택한 행정 업태 데이터에서
-                # 실제 매칭된 식당만 검색 결과에 포함
+
                 if age_info:
-            
+
                     matched_row = row.copy()
-            
-                    matched_row["업력"] = age_info["업력"]
-            
-                    matched_rows.append(matched_row)
-            
-            
-            # 매칭된 식당만 새로운 DataFrame으로 구성
-            google_df = pd.DataFrame(matched_rows)
-            
-            
-            # 선택 업태에 해당하는 식당이 하나도 없을 경우
+
+                    matched_row["업력"] = (
+                        age_info["업력"]
+                    )
+
+                    matched_rows.append(
+                        matched_row
+                    )
+
+
+            google_df = pd.DataFrame(
+                matched_rows
+            )
+
+
+            # -------------------------------------------------
+            # 5. 행정 업태와 매칭된 식당이 없는 경우
+            # -------------------------------------------------
             if google_df.empty:
-            
+
                 st.warning(
-                    "선택한 음식점 종류에 해당하는 "
-                    "식당을 찾지 못했습니다."
+                    "선택한 음식점 종류와 "
+                    "일치하는 식당을 찾지 못했습니다."
                 )
-            
+
                 st.stop()
-            
-            
-            # 인덱스 다시 정리
-            google_df = google_df.reset_index(drop=True)
 
-# -------------------------
-# 평점 기준점수
-# -------------------------
-google_df["평점기준점수"] = (
-pd.to_numeric(
-      google_df["Google 평점"],
-     errors="coerce"
-)
-/ 5
-* 100
-)
 
-# -------------------------
-# 리뷰 기준점수
-# 검색 결과 내 로그 정규화
-# -------------------------
-google_df["리뷰 수"] = pd.to_numeric(
-    google_df["리뷰 수"],
-    errors="coerce"
-).fillna(0)
+            # -------------------------------------------------
+            # 6. 인덱스 정리
+            # -------------------------------------------------
+            google_df = google_df.reset_index(
+                drop=True
+            )
 
-max_reviews = (
-    google_df["리뷰 수"].max()
-)
 
-if max_reviews > 0:
+            # -------------------------------------------------
+            # 7. 평점 기준점수
+            # Google 평점 5점 = 100점
+            # -------------------------------------------------
+            google_df["평점기준점수"] = (
+                pd.to_numeric(
+                    google_df["Google 평점"],
+                    errors="coerce"
+                )
+                / 5
+                * 100
+            )
 
-    google_df["리뷰기준점수"] = (
-        np.log1p(
-            google_df["리뷰 수"]
+
+            # -------------------------------------------------
+            # 8. 리뷰 기준점수
+            # 검색된 식당 내 로그 정규화
+            # -------------------------------------------------
+            google_df["리뷰 수"] = pd.to_numeric(
+                google_df["리뷰 수"],
+                errors="coerce"
+            ).fillna(0)
+
+            max_reviews = (
+                google_df["리뷰 수"].max()
+            )
+
+            if max_reviews > 0:
+
+                google_df["리뷰기준점수"] = (
+                    np.log1p(
+                        google_df["리뷰 수"]
+                    )
+                    / np.log1p(max_reviews)
+                    * 100
+                )
+
+            else:
+
+                google_df["리뷰기준점수"] = 0
+
+
+            # -------------------------------------------------
+            # 9. 업력 기준점수
+            # -------------------------------------------------
+            google_df["업력기준점수"] = (
+                google_df["업력"]
+                .apply(calc_age_score)
+            )
+
+
+            # -------------------------------------------------
+            # 10. 종합점수
+            # -------------------------------------------------
+            google_df["종합점수"] = (
+
+                google_df["평점기준점수"]
+                * rating_weight / 100
+
+                +
+
+                google_df["리뷰기준점수"]
+                * review_weight / 100
+
+                +
+
+                google_df["업력기준점수"]
+                * age_weight / 100
+
+            ).round(1)
+    
+    # -------------------------
+    # 60점 이상 / 최대 20개
+    # -------------------------
+    result_df = (
+        google_df[
+            google_df["종합점수"] >= 60
+        ]
+        .sort_values(
+            "종합점수",
+            ascending=False
         )
-        /
-        np.log1p(max_reviews)
-        * 100
+        .head(20)
+        .reset_index(drop=True)
     )
-
-else:
-
-    google_df["리뷰기준점수"] = 0
-
-
-# -------------------------
-# 업력 기준점수
-# -------------------------
-google_df["업력기준점수"] = (
-    google_df["업력"]
-    .apply(calc_age_score)
-)
-
-
-# -------------------------
-# 종합점수
-# -------------------------
-google_df["종합점수"] = (
-
-    google_df["평점기준점수"]
-    * rating_weight / 100
-
-    +
-
-    google_df["리뷰기준점수"]
-    * review_weight / 100
-
-    +
-
-    google_df["업력기준점수"]
-    * age_weight / 100
-
-).round(1)
-
-
-# -------------------------
-# 60점 이상 / 최대 20개
-# -------------------------
-result_df = (
-    google_df[
-        google_df["종합점수"] >= 60
-    ]
-    .sort_values(
-        "종합점수",
-        ascending=False
+    
+    result_df["순위"] = (
+        result_df.index + 1
     )
-    .head(20)
-    .reset_index(drop=True)
-)
-
-result_df["순위"] = (
-    result_df.index + 1
-)
-
-
-# -------------------------
-# 업력 화면 표시
-# -------------------------
-result_df["업력 표시"] = (
-    result_df["업력"]
-    .apply(
-        lambda x:
-        f"{x:.1f}년"
-        if pd.notna(x)
-        else "정보 없음"
-    )
-)
-
-
-# -------------------------
-# Google Maps URL
-# -------------------------
-result_df["지도"] = (
-    result_df.apply(
-        lambda row:
-        "https://www.google.com/maps/search/?api=1"
-        "&query="
-        + urllib.parse.quote(
-            row["식당명"]
-            + " "
-            + row["주소"]
+    
+    
+    # -------------------------
+    # 업력 화면 표시
+    # -------------------------
+    result_df["업력 표시"] = (
+        result_df["업력"]
+        .apply(
+            lambda x:
+            f"{x:.1f}년"
+            if pd.notna(x)
+            else "정보 없음"
         )
-        + "&query_place_id="
-        + row["Place ID"],
-        axis=1
     )
-)
-
-
-# -------------------------
-# 소비자용 출력
-# -------------------------
-consumer_df = result_df[
-    [
+    
+    
+    # -------------------------
+    # Google Maps URL
+    # -------------------------
+    result_df["지도"] = (
+        result_df.apply(
+            lambda row:
+            "https://www.google.com/maps/search/?api=1"
+            "&query="
+            + urllib.parse.quote(
+                row["식당명"]
+                + " "
+                + row["주소"]
+            )
+            + "&query_place_id="
+            + row["Place ID"],
+            axis=1
+        )
+    )
+    
+    
+    # -------------------------
+    # 소비자용 출력
+    # -------------------------
+    consumer_df = result_df[
+        [
+            "순위",
+            "식당명",
+            "Google 평점",
+            "리뷰 수",
+            "업력 표시",
+            "종합점수",
+            "주소",
+            "지도"
+        ]
+    ].copy()
+    
+    consumer_df.columns = [
         "순위",
         "식당명",
         "Google 평점",
         "리뷰 수",
-        "업력 표시",
+        "업력",
         "종합점수",
         "주소",
         "지도"
     ]
-].copy()
-
-consumer_df.columns = [
-    "순위",
-    "식당명",
-    "Google 평점",
-    "리뷰 수",
-    "업력",
-    "종합점수",
-    "주소",
-    "지도"
-]
-
-st.success(
-    f"{food} 추천 맛집 "
-    f"{len(consumer_df)}곳입니다."
-)
+    
+    st.success(
+        f"{food} 추천 맛집 "
+        f"{len(consumer_df)}곳입니다."
+    )
 
 # =====================================
 # 소비자용 카드형 결과 + 대표사진
