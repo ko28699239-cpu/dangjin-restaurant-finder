@@ -346,24 +346,31 @@ food_categories = {
 # 선택 상태 초기값
 # -----------------------------
 
+# 실제 food_categories의 첫 번째 카테고리를 기본값으로 사용
+default_category = list(food_categories.keys())[0]
+
+# 저장된 카테고리가 없거나 현재 목록에 없는 경우 초기화
 if (
     "selected_category" not in st.session_state
     or st.session_state.selected_category not in food_categories
 ):
-    st.session_state.selected_category = "🍚 한식"
+    st.session_state.selected_category = default_category
 
+# 현재 카테고리의 음식 목록
+current_food_list = food_categories[
+    st.session_state.selected_category
+]
+
+# 저장된 음식이 없거나 현재 카테고리에 없는 경우 첫 음식으로 초기화
 if (
     "selected_food" not in st.session_state
-    or st.session_state.selected_food
-    not in food_categories[st.session_state.selected_category]
+    or st.session_state.selected_food not in current_food_list
 ):
-    st.session_state.selected_food = food_categories[
-        st.session_state.selected_category
-    ][0]
+    st.session_state.selected_food = current_food_list[0]
 
+# 직접 입력값 초기화
 if "custom_food" not in st.session_state:
     st.session_state.custom_food = ""
-
 
 # -----------------------------
 # 1. 대분류 선택
