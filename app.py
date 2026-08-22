@@ -422,7 +422,7 @@ if "custom_food" not in st.session_state:
 # -----------------------------
 st.markdown("### 1. 음식 종류")
 
-category_cols = st.columns(7)
+category_cols = st.columns(5)
 
 for i, category in enumerate(food_categories.keys()):
 
@@ -430,7 +430,7 @@ for i, category in enumerate(food_categories.keys()):
         st.session_state.selected_category == category
     )
 
-    with category_cols[i]:
+   with category_cols[i % 5]:
 
         if st.button(
             category,
