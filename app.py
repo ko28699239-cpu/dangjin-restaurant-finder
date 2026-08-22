@@ -328,182 +328,111 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# ---------------------------------------------------------
-# 음식 선택 - 카테고리별 전체 메뉴 버튼
-# ---------------------------------------------------------
 
-st.subheader("🍽️ 먹고 싶은 메뉴를 골라보세요")
-
-food_categories = {
-  "🍚 한식": [
-    "백반",
-    "한정식",
-    "제육볶음",
-    "닭볶음탕",
-    "어죽",
-    "매운탕",
-    "추어탕"
-],
-
-    "🍜 면요리": [
-        "칼국수", "콩국수", "냉면", "막국수"
-    ],
-
-    "🥩 고기": [
-        "삼겹살", "돼지갈비", "한우", "소갈비",
-        "곱창", "족발", "보쌈"
-    ],
-
-    "🍲 국밥·탕": [
-        "돼지국밥", "순대국", "설렁탕",
-        "곰탕", "갈비탕", "삼계탕"
-    ],
-
-    "🐟 해산물": [
-        "회", "조개구이", "해물탕",
-        "아귀찜", "장어", "게국지"
-    ],
-
-    "🥢 중식·일식": [
-        "짬뽕", "짜장면", "탕수육", "마라탕",
-        "초밥", "돈카츠", "우동"
-    ],
-
-    "🍕 양식·분식": [
-        "파스타", "피자", "떡볶이"
-    ]
-}
+# =========================================================
+# [V1-1] 음식 선택 UX
+# 대분류 -> 세부 메뉴 -> 직접 검색
+# 버튼 선택 시 직접 입력값 자동 초기화
+# =========================================================
 
 
-# ---------------------------------------------------------
-# 선택 메뉴 기억
-# ---------------------------------------------------------
+# -----------------------------
+# 선택 상태 초기값
+# -----------------------------
+if "selected_category" not in st.session_state:
+    st.session_state.selected_category = "🍚 한식"
 
 if "selected_food" not in st.session_state:
     st.session_state.selected_food = "백반"
 
+if "custom_food" not in st.session_state:
+    st.session_state.custom_food = ""
 
 
+# -----------------------------
+# 1. 대분류 선택
+# -----------------------------
+st.markdown("### 1. 음식 종류")
 
-# ---------------------------------------------------------
-# 카테고리별 메뉴 버튼 출력
-# ---------------------------------------------------------
+category_cols = st.columns(7)
 
-# =========================================================
-# 메뉴 카드 버튼 디자인 개선
-# - 버튼 높이 축소
-# - 아이콘 + 메뉴명 세로 정렬
-# - 선택 버튼 강조
-# =========================================================
+for i, category in enumerate(food_categories.keys()):
 
-st.markdown(
-    """
-    <style>
-
-    div.stButton > button {
-        min-height: 76px;
-        border-radius: 16px;
-        border: 1px solid #eeeeee;
-        background: #ffffff;
-        font-size: 15px;
-        font-weight: 700;
-        line-height: 1.25;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.045);
-        transition: all 0.16s ease;
-        white-space: pre-line;
-        padding: 10px 8px;
-    }
-
-    div.stButton > button:hover {
-        border-color: #ff7448;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 14px rgba(255,116,72,0.12);
-    }
-
-    div.stButton > button[kind="primary"] {
-        background: linear-gradient(
-            135deg,
-            #ff7b50 0%,
-            #ff4e2a 100%
-        );
-        color: white;
-        border: none;
-        box-shadow: 0 6px 16px rgba(255,78,42,0.22);
-    }
-
-    div.stButton > button[kind="primary"]:hover {
-        color: white;
-        border: none;
-    }
-
-    .menu-category {
-        font-size: 18px;
-        font-weight: 800;
-        margin-top: 18px;
-        margin-bottom: 7px;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-       # ---------------------------------------------------------
-# 카테고리별 실제 메뉴 버튼 출력
-# ---------------------------------------------------------
-
-for category, foods in food_categories.items():
-
-    st.markdown(
-        f'<div class="menu-category">{category}</div>',
-        unsafe_allow_html=True
+    category_selected = (
+        st.session_state.selected_category == category
     )
 
-    cols = st.columns(min(len(foods), 7))
+    with category_cols[i]:
 
-    for i, food_name in enumerate(foods):
+        if st.button(
+            category,
+            key=f"category_{category}",
+            type="primary" if category_selected else "secondary",
+            use_container_width=True
+        ):
+            st.session_state.selected_category = category
 
-        with cols[i % len(cols)]:
+            # 새 카테고리의 첫 음식 선택
+            st.session_state.selected_food = food_categories[category][0]
 
-            selected = (
-                st.session_state.selected_food == food_name
-            )
+            # 직접 입력값 초기화
+            st.session_state.custom_food = ""
 
-            if selected:
-                button_text = f"✓ {food_name}"
-                button_type = "primary"
-            else:
-                button_text = food_name
-                button_type = "secondary"
+            st.rerun()
 
-            if st.button(
-                button_text,
-                key=f"food_{category}_{food_name}",
-                type=button_type,
-                use_container_width=True
-            ):
-                st.session_state.selected_food = food_name
-                st.rerun()   
 
-# ---------------------------------------------------------
-# 직접 입력
-# ---------------------------------------------------------
+# -----------------------------
+# 2. 세부 메뉴 선택
+# -----------------------------
+st.markdown("### 2. 세부 메뉴")
 
-st.markdown(
-    '<div class="food-category-title">🔎 다른 음식 직접 검색</div>',
-    unsafe_allow_html=True
-)
+current_category = st.session_state.selected_category
+current_foods = food_categories[current_category]
+
+menu_cols = st.columns(min(len(current_foods), 7))
+
+for i, food_name in enumerate(current_foods):
+
+    food_selected = (
+        st.session_state.selected_food == food_name
+        and st.session_state.custom_food == ""
+    )
+
+    with menu_cols[i % len(menu_cols)]:
+
+        if st.button(
+            food_name,
+            key=f"food_{current_category}_{food_name}",
+            type="primary" if food_selected else "secondary",
+            use_container_width=True
+        ):
+            st.session_state.selected_food = food_name
+
+            # 중요:
+            # 세부 메뉴 버튼을 누르면
+            # 이전 직접 검색어 자동 삭제
+            st.session_state.custom_food = ""
+
+            st.rerun()
+
+
+# -----------------------------
+# 3. 직접 음식 검색
+# -----------------------------
+st.markdown("### 3. 다른 음식 직접 검색")
 
 custom_food = st.text_input(
     "직접 검색",
     placeholder="예: 닭갈비, 샤브샤브, 민물새우탕",
+    key="custom_food",
     label_visibility="collapsed"
 )
 
-
-# 직접 입력값이 있으면 직접 입력 우선
-if custom_food.strip():
-    food = custom_food.strip()
+# -----------------------------
+# 최종 검색 음식 결정
+# -----------------------------
+if st.session_state.custom_food.strip():
+    food = st.session_state.custom_food.strip()
 else:
     food = st.session_state.selected_food
 
