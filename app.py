@@ -1014,17 +1014,17 @@ if google_df.empty:
 # 인덱스 다시 정리
 google_df = google_df.reset_index(drop=True)
 
-            # -------------------------
-            # 평점 기준점수
-            # -------------------------
-            google_df["평점기준점수"] = (
-                pd.to_numeric(
-                    google_df["Google 평점"],
-                    errors="coerce"
-                )
-                / 5
-                * 100
-            )
+# -------------------------
+# 평점 기준점수
+# -------------------------
+ google_df["평점기준점수"] = (
+    pd.to_numeric(
+          google_df["Google 평점"],
+         errors="coerce"
+    )
+    / 5
+    * 100
+)
 
 
             # -------------------------
