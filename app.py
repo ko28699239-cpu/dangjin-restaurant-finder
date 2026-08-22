@@ -330,186 +330,369 @@ st.markdown(
 )
 
 # =========================================================
-# [V1-1] 음식 선택 UX
-# 대분류 -> 세부 메뉴 -> 직접 검색
-# 버튼 선택 시 직접 입력값 자동 초기화
+# [V1-1] 계층형 음식 선택 UX
+# 1단계: 업태 대분류
+# 2단계: 중분류
+# 3단계: 필요할 때만 세부 음식
+# 어느 단계에서도 바로 검색 가능
 # =========================================================
 
-food_categories = {
+st.subheader("🍽️ 음식 선택")
 
-    "🍚 한식": [
-        "백반", "한정식", "제육볶음", "불고기", "비빔밥",
-        "김치찌개", "된장찌개", "청국장", "두루치기", "쌈밥"
-    ],
 
-    "🍲 국밥·탕": [
-        "돼지국밥", "순대국", "설렁탕", "곰탕", "갈비탕",
-        "삼계탕", "감자탕", "육개장", "해장국", "도가니탕"
-    ],
+# ---------------------------------------------------------
+# 업태 대분류 → 중분류 → 세부 음식
+# ---------------------------------------------------------
+food_tree = {
 
-    "🍜 면요리": [
-        "칼국수", "콩국수", "냉면", "막국수", "잔치국수",
-        "비빔국수", "수제비", "메밀국수", "쫄면", "우동"
-    ],
+    "🍚 한식": {
+        "백반·한정식": [
+            "백반",
+            "한정식",
+            "쌈밥",
+            "비빔밥"
+        ],
 
-    "🥩 고기·구이": [
-        "삼겹살", "돼지갈비", "한우", "소갈비", "곱창",
-        "막창", "족발", "보쌈", "오리구이", "닭갈비"
-    ],
+        "국밥·해장국": [
+            "순대국",
+            "돼지국밥",
+            "해장국",
+            "육개장"
+        ],
 
-    "🐟 해산물": [
-        "회", "조개구이", "해물탕", "아귀찜", "장어",
-        "게국지", "꽃게탕", "물회", "해물찜", "생선구이"
-    ],
+        "탕·곰탕": [
+            "갈비탕",
+            "설렁탕",
+            "곰탕",
+            "삼계탕",
+            "감자탕"
+        ],
 
-    "🍗 닭·오리": [
-        "치킨", "닭볶음탕", "삼계탕", "찜닭", "닭갈비",
-        "백숙", "오리백숙", "오리주물럭", "오리구이", "닭발"
-    ],
+        "찌개·전골": [
+            "김치찌개",
+            "된장찌개",
+            "청국장",
+            "부대찌개",
+            "전골"
+        ],
 
-    "🥟 중식": [
-        "짜장면", "짬뽕", "탕수육", "마라탕", "마라샹궈",
-        "양꼬치", "볶음밥", "유산슬", "깐풍기", "딤섬"
-    ],
+        "고기요리": [
+            "불고기",
+            "제육볶음",
+            "두루치기"
+        ],
 
-    "🍣 일식": [
-        "초밥", "회덮밥", "돈카츠", "라멘", "우동",
-        "소바", "덮밥", "규동", "카레", "일식코스"
-    ],
+        "닭·오리": [
+            "닭볶음탕",
+            "백숙",
+            "오리백숙",
+            "오리주물럭"
+        ],
 
-    "🍝 양식": [
-        "파스타", "피자", "스테이크", "리조또", "햄버거",
-        "샐러드", "브런치", "샌드위치", "오므라이스", "돈가스"
-    ],
+        "면·국수": [
+            "칼국수",
+            "콩국수",
+            "잔치국수",
+            "비빔국수",
+            "막국수"
+        ],
 
-    "🌶️ 분식·간식": [
-        "떡볶이", "김밥", "순대", "튀김", "라볶이",
-        "만두", "핫도그", "토스트", "어묵", "닭강정"
-    ]
+        "족발·보쌈": [
+            "족발",
+            "보쌈"
+        ],
+
+        "생선·해산물": [
+            "생선구이",
+            "해물탕",
+            "아귀찜",
+            "매운탕"
+        ],
+
+        "향토음식": [
+            "어죽",
+            "추어탕",
+            "게국지"
+        ]
+    },
+
+
+    "🥟 중국식": {
+        "짜장면": [],
+        "짬뽕": [],
+        "볶음밥": [],
+        "탕수육": [],
+        "마라탕": [],
+        "마라샹궈": [],
+        "양꼬치": [],
+        "딤섬·만두": [],
+        "깐풍기": [],
+        "중식코스": []
+    },
+
+
+    "🍣 일식": {
+        "초밥": [],
+        "사시미·회": [],
+        "돈카츠": [],
+        "라멘": [],
+        "우동": [],
+        "소바": [],
+        "덮밥": [],
+        "일식카레": [],
+        "이자카야": [],
+        "일식코스": []
+    },
+
+
+    "🍝 경양식": {
+        "파스타": [],
+        "피자": [],
+        "스테이크": [],
+        "리조또": [],
+        "볶음밥": [],
+        "오므라이스": [],
+        "돈가스": [],
+        "함박스테이크": [],
+        "샐러드": [],
+        "양식코스": []
+    },
+
+
+    "🌶️ 분식": {
+        "떡볶이": [],
+        "김밥": [],
+        "순대": [],
+        "튀김": [],
+        "라볶이": [],
+        "만두": [],
+        "어묵": [],
+        "쫄면": [],
+        "떡꼬치": [],
+        "닭강정": []
+    },
+
+
+    "🐟 횟집": {
+        "모둠회": [],
+        "광어회": [],
+        "우럭회": [],
+        "도미회": [],
+        "물회": [],
+        "회덮밥": [],
+        "해산물": [],
+        "매운탕": [],
+        "조개": [],
+        "제철회": []
+    },
+
+
+    "🥩 식육(숯불구이)": {
+        "삼겹살": [],
+        "돼지갈비": [],
+        "한우": [],
+        "소갈비": [],
+        "갈비살": [],
+        "등심": [],
+        "목살": [],
+        "항정살": [],
+        "곱창·막창": [],
+        "숯불구이": []
+    },
+
+
+    "🍗 호프/통닭": {
+        "후라이드치킨": [],
+        "양념치킨": [],
+        "간장치킨": [],
+        "닭강정": [],
+        "닭발": [],
+        "골뱅이": [],
+        "마른안주": [],
+        "먹태": [],
+        "생맥주안주": [],
+        "치킨·호프": []
+    }
 }
-# -----------------------------
-# 선택 상태 초기값
-# -----------------------------
 
-# 실제 food_categories의 첫 번째 카테고리를 기본값으로 사용
-default_category = list(food_categories.keys())[0]
 
-# 저장된 카테고리가 없거나 현재 목록에 없는 경우 초기화
+# ---------------------------------------------------------
+# 세션 상태 초기화
+# ---------------------------------------------------------
+default_category = list(food_tree.keys())[0]
+
 if (
     "selected_category" not in st.session_state
-    or st.session_state.selected_category not in food_categories
+    or st.session_state.selected_category not in food_tree
 ):
     st.session_state.selected_category = default_category
 
-# 현재 카테고리의 음식 목록
-current_food_list = food_categories[
-    st.session_state.selected_category
-]
+if "selected_group" not in st.session_state:
+    st.session_state.selected_group = ""
 
-# 저장된 음식이 없거나 현재 카테고리에 없는 경우 첫 음식으로 초기화
-if (
-    "selected_food" not in st.session_state
-    or st.session_state.selected_food not in current_food_list
-):
-    st.session_state.selected_food = current_food_list[0]
+if "selected_food" not in st.session_state:
+    st.session_state.selected_food = ""
 
-# 직접 입력값 초기화
 if "custom_food" not in st.session_state:
     st.session_state.custom_food = ""
 
-# -----------------------------
-# 1. 대분류 선택
-# -----------------------------
-st.markdown("### 1. 음식 종류")
 
-category_cols = st.columns(5)
+# ---------------------------------------------------------
+# 1단계 - 업태 대분류
+# ---------------------------------------------------------
+st.markdown("### 1. 음식점 종류")
 
-category_cols = st.columns(5)
+category_cols = st.columns(4)
 
-for i, category in enumerate(food_categories.keys()):
+for i, category in enumerate(food_tree.keys()):
 
-    category_selected = (
+    selected = (
         st.session_state.selected_category == category
     )
 
-    with category_cols[i % 5]:
+    with category_cols[i % 4]:
 
         if st.button(
             category,
             key=f"category_{category}",
-            type="primary" if category_selected else "secondary",
+            type="primary" if selected else "secondary",
             use_container_width=True
         ):
             st.session_state.selected_category = category
-            st.session_state.selected_food = food_categories[category][0]
-            st.session_state.custom_food = ""
-            st.rerun()
-            # 새 카테고리의 첫 음식 선택
-            st.session_state.selected_food = food_categories[category][0]
 
-            # 직접 입력값 초기화
+            # 아래 단계 초기화
+            st.session_state.selected_group = ""
+            st.session_state.selected_food = ""
             st.session_state.custom_food = ""
 
             st.rerun()
 
 
-# -----------------------------
-# 2. 세부 메뉴 선택
-# -----------------------------
-st.markdown("### 2. 세부 메뉴")
-
+# ---------------------------------------------------------
+# 2단계 - 중분류
+# ---------------------------------------------------------
 current_category = st.session_state.selected_category
-current_foods = food_categories[current_category]
+group_names = list(food_tree[current_category].keys())
 
-menu_cols = st.columns(min(len(current_foods), 7))
+st.markdown("### 2. 세부 종류")
 
-for i, food_name in enumerate(current_foods):
+group_cols = st.columns(5)
 
-    food_selected = (
-        st.session_state.selected_food == food_name
-        and st.session_state.custom_food == ""
+for i, group_name in enumerate(group_names):
+
+    selected = (
+        st.session_state.selected_group == group_name
     )
 
-    with menu_cols[i % len(menu_cols)]:
+    with group_cols[i % 5]:
 
         if st.button(
-            food_name,
-            key=f"food_{current_category}_{food_name}",
-            type="primary" if food_selected else "secondary",
+            group_name,
+            key=f"group_{current_category}_{group_name}",
+            type="primary" if selected else "secondary",
             use_container_width=True
         ):
-            st.session_state.selected_food = food_name
-
-            # 중요:
-            # 세부 메뉴 버튼을 누르면
-            # 이전 직접 검색어 자동 삭제
+            st.session_state.selected_group = group_name
+            st.session_state.selected_food = ""
             st.session_state.custom_food = ""
 
             st.rerun()
 
 
-# -----------------------------
-# 3. 직접 음식 검색
-# -----------------------------
-st.markdown("### 3. 다른 음식 직접 검색")
+# ---------------------------------------------------------
+# 3단계 - 세부 음식
+# 한식처럼 3단계가 필요한 경우만 표시
+# ---------------------------------------------------------
+if st.session_state.selected_group:
+
+    detail_foods = food_tree[current_category][
+        st.session_state.selected_group
+    ]
+
+    if detail_foods:
+
+        st.markdown("### 3. 음식 선택")
+
+        detail_cols = st.columns(5)
+
+        for i, food_name in enumerate(detail_foods):
+
+            selected = (
+                st.session_state.selected_food == food_name
+            )
+
+            with detail_cols[i % 5]:
+
+                if st.button(
+                    food_name,
+                    key=f"detail_{current_category}_{food_name}",
+                    type="primary" if selected else "secondary",
+                    use_container_width=True
+                ):
+                    st.session_state.selected_food = food_name
+                    st.session_state.custom_food = ""
+
+                    st.rerun()
+
+
+# ---------------------------------------------------------
+# 직접 검색
+# ---------------------------------------------------------
+st.markdown("### 🔎 직접 음식 검색")
 
 custom_food = st.text_input(
     "직접 검색",
-    placeholder="예: 닭갈비, 샤브샤브, 민물새우탕",
+    placeholder="예: 샤브샤브, 민물새우탕, 쭈꾸미",
     key="custom_food",
     label_visibility="collapsed"
 )
 
-# -----------------------------
-# 최종 검색 음식 결정
-# -----------------------------
+
+# ---------------------------------------------------------
+# 최종 검색 조건 결정
+# 3단계 > 2단계 > 1단계 순
+# ---------------------------------------------------------
+
 if st.session_state.custom_food.strip():
+
+    search_level = "custom"
     food = st.session_state.custom_food.strip()
-else:
+
+elif st.session_state.selected_food:
+
+    search_level = "detail"
     food = st.session_state.selected_food
 
+elif st.session_state.selected_group:
 
-st.caption(f"현재 선택 메뉴: **{food}**")
+    search_level = "group"
+    food = st.session_state.selected_group
+
+else:
+
+    search_level = "category"
+    food = st.session_state.selected_category
+
+
+# 검색에 사용할 행정 업태명
+selected_category = st.session_state.selected_category
+
+
+# 화면 표시
+st.caption(
+    f"현재 검색 조건: **{selected_category}"
+    + (
+        f" → {st.session_state.selected_group}"
+        if st.session_state.selected_group
+        else ""
+    )
+    + (
+        f" → {st.session_state.selected_food}"
+        if st.session_state.selected_food
+        else ""
+    )
+    + "**"
+)
 
 # -----------------------------
 # 가중치 설정
