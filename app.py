@@ -903,7 +903,7 @@ if st.button(
     google_df = search_google_places(
         food.strip(),
         selected_category
-            )
+    )
 
             if google_df.empty:
 
