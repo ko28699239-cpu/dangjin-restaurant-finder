@@ -189,29 +189,109 @@ def find_business_age(
     return best
 
 
-# -----------------------------
+# ---------------------------------------------------------
 # Google Places 검색
-# 동일 음식 검색은 7일 캐시
-# -----------------------------
+# 같은 검색조건은 7일 캐시
+# 대분류 업태를 Google Place Type으로 먼저 제한한 뒤
+# 그 안에서 음식명을 검색
+# ---------------------------------------------------------
+
 @st.cache_data(ttl=60 * 60 * 24 * 7)
-def search_google_places(food):
+def search_google_places(food, category):
 
     url = "https://places.googleapis.com/v1/places:searchText"
 
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": API_KEY,
-        "X-Goog-FieldMask":
-            "places.id,"
-            "places.displayName,"
-            "places.formattedAddress,"
-            "places.rating,"
-            "places.userRatingCount,"
-            "places.photos"
+        "X-Goog-FieldMask": ",".join([
+            "places.id",
+            "places.displayName",
+            "places.formattedAddress",
+            "places.rating",
+            "places.userRatingCount",
+            "places.photos",
+            "places.types",
+            "places.primaryType",
+            "places.primaryTypeDisplayName"
+        ])
     }
 
+    # -----------------------------------------------------
+    # 우리 행정 업태 → Google Places 식당 타입
+    # -----------------------------------------------------
+    category_type_map = {
+
+        "🍚 한식": "korean_restaurant",
+
+        "🥟 중국식": "chinese_restaurant",
+
+        "🍣 일식": "japanese_restaurant",
+
+        "🍝 경양식": "western_restaurant",
+
+        # 분식은 정확한 국가형 업종이 없으므로
+        # snack_bar를 이용
+        "🌶️ 분식": "snack_bar",
+
+        "🐟 횟집": "seafood_restaurant",
+
+        "🥩 식육(숯불구이)": "korean_barbecue_restaurant",
+
+        "🍗 호프/통닭": "chicken_restaurant"
+    }
+
+    google_type = category_type_map.get(
+        category,
+        "restaurant"
+    )
+
+    # 화면용 이모지 제거
+    category_text = (
+        category
+        .replace("🍚", "")
+        .replace("🥟", "")
+        .replace("🍣", "")
+        .replace("🍝", "")
+        .replace("🌶️", "")
+        .replace("🐟", "")
+        .replace("🥩", "")
+        .replace("🍗", "")
+        .strip()
+    )
+
+    # -----------------------------------------------------
+    # 검색어
+    #
+    # 예:
+    # 중국식 + 볶음밥
+    # → "충남 당진시 중국식 볶음밥"
+    #
+    # 중요한 점:
+    # 음식명만 검색하지 않고 대분류를 끝까지 유지
+    # -----------------------------------------------------
+
+    if food and food != category:
+
+        text_query = (
+            f"충남 당진시 {category_text} {food}"
+        )
+
+    else:
+
+        text_query = (
+            f"충남 당진시 {category_text} 음식점"
+        )
+
     data = {
-        "textQuery": f"{food} 충남 당진시",
+        "textQuery": text_query,
+
+        # 식당 종류부터 제한
+        "includedType": google_type,
+
+        # 다른 업종이 섞이지 않도록 강제
+        "strictTypeFiltering": True,
+
         "languageCode": "ko",
         "regionCode": "KR",
         "pageSize": 20
@@ -225,23 +305,37 @@ def search_google_places(food):
     )
 
     if not response.ok:
-        st.error(f"Google API 오류: {response.status_code}")
+
+        st.error(
+            f"Google API 오류: "
+            f"{response.status_code}"
+        )
+
         st.code(response.text)
         st.stop()
 
-    places = response.json().get("places", [])
+    places = response.json().get(
+        "places",
+        []
+    )
 
     rows = []
 
     for place in places:
 
-        photos = place.get("photos", [])
+        photos = place.get(
+            "photos",
+            []
+        )
 
         photo_url = ""
 
         if photos:
 
-            photo_name = photos[0].get("name", "")
+            photo_name = photos[0].get(
+                "name",
+                ""
+            )
 
             if photo_name:
 
@@ -255,28 +349,64 @@ def search_google_places(food):
                 )
 
         rows.append({
+
             "식당명":
-                place.get("displayName", {}).get("text", ""),
+                place.get(
+                    "displayName",
+                    {}
+                ).get(
+                    "text",
+                    ""
+                ),
 
             "Google 평점":
-                place.get("rating", np.nan),
+                place.get(
+                    "rating",
+                    np.nan
+                ),
 
             "리뷰 수":
-                place.get("userRatingCount", 0),
+                place.get(
+                    "userRatingCount",
+                    0
+                ),
 
             "주소":
-                place.get("formattedAddress", ""),
+                place.get(
+                    "formattedAddress",
+                    ""
+                ),
 
             "Place ID":
-                place.get("id", ""),
+                place.get(
+                    "id",
+                    ""
+                ),
 
             "대표사진":
-                photo_url
+                photo_url,
+
+            # 디버깅/검증용
+            "Google 업종":
+                place.get(
+                    "primaryType",
+                    ""
+                ),
+
+            "Google 업종명":
+                place.get(
+                    "primaryTypeDisplayName",
+                    {}
+                ).get(
+                    "text",
+                    ""
+                )
         })
 
     result = pd.DataFrame(rows)
 
     if not result.empty:
+
         result = result.drop_duplicates(
             subset=["Place ID"]
         )
@@ -770,9 +900,10 @@ if st.button(
             f"당진의 {food} 맛집을 찾고 있습니다..."
         ):
 
-            google_df = search_google_places(
-                food.strip()
-            )
+           google_df = search_google_places(
+    food.strip(),
+    selected_category
+)
 
             if google_df.empty:
 
