@@ -424,13 +424,15 @@ st.markdown("### 1. 음식 종류")
 
 category_cols = st.columns(5)
 
+category_cols = st.columns(5)
+
 for i, category in enumerate(food_categories.keys()):
 
     category_selected = (
         st.session_state.selected_category == category
     )
 
-   with category_cols[i % 5]:
+    with category_cols[i % 5]:
 
         if st.button(
             category,
@@ -439,7 +441,9 @@ for i, category in enumerate(food_categories.keys()):
             use_container_width=True
         ):
             st.session_state.selected_category = category
-
+            st.session_state.selected_food = food_categories[category][0]
+            st.session_state.custom_food = ""
+            st.rerun()
             # 새 카테고리의 첫 음식 선택
             st.session_state.selected_food = food_categories[category][0]
 
