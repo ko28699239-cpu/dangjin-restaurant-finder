@@ -346,17 +346,20 @@ food_categories = {
 # 선택 상태 초기값
 # -----------------------------
 
-if "selected_category" not in st.session_state:
-    ...
-
-# -----------------------------
-# 선택 상태 초기값
-# -----------------------------
-if "selected_category" not in st.session_state:
+if (
+    "selected_category" not in st.session_state
+    or st.session_state.selected_category not in food_categories
+):
     st.session_state.selected_category = "🍚 한식"
 
-if "selected_food" not in st.session_state:
-    st.session_state.selected_food = "백반"
+if (
+    "selected_food" not in st.session_state
+    or st.session_state.selected_food
+    not in food_categories[st.session_state.selected_category]
+):
+    st.session_state.selected_food = food_categories[
+        st.session_state.selected_category
+    ][0]
 
 if "custom_food" not in st.session_state:
     st.session_state.custom_food = ""
