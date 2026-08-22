@@ -58,7 +58,67 @@ def load_admin_data():
     ).round(1)
 
     return active
+# ---------------------------------------------------------
+# UI 대분류 -> 행정데이터 업태구분명 매핑
+# ---------------------------------------------------------
 
+CATEGORY_ADMIN_TYPES = {
+    "🍚 한식": ["한식"],
+
+    "🥟 중국식": ["중국식"],
+
+    "🍣 일식": ["일식"],
+
+    "🍝 경양식": ["경양식"],
+
+    "🌶️ 분식": ["분식"],
+
+    "🐟 횟집": ["횟집"],
+
+    "🥩 식육(숯불구이)": [
+        "식육(숯불구이)"
+    ],
+
+    # 화면에서는 하나의 카테고리지만
+    # 행정데이터에서는 두 업태를 모두 포함
+    "🍗 호프/통닭": [
+        "호프/통닭",
+        "통닭(치킨)"
+    ]
+}
+
+
+def filter_admin_by_category(admin_df, selected_category):
+    """
+    사용자가 선택한 대분류에 맞는
+    행정 인허가 음식점만 반환
+    """
+
+    allowed_types = CATEGORY_ADMIN_TYPES.get(
+        selected_category,
+        []
+    )
+
+    # 매핑되지 않은 카테고리라면
+    # 전체 데이터를 그대로 사용
+    if not allowed_types:
+        return admin_df.copy()
+
+    if "업태구분명" not in admin_df.columns:
+        return admin_df.copy()
+
+    category_series = (
+        admin_df["업태구분명"]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+    )
+
+    filtered = admin_df[
+        category_series.isin(allowed_types)
+    ].copy()
+
+    return filtered
 
 # -----------------------------
 # 상호명 정리
