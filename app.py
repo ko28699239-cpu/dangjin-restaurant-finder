@@ -900,10 +900,10 @@ if st.button(
             f"당진의 {food} 맛집을 찾고 있습니다..."
         ):
 
-    google_df = search_google_places(
-        food.strip(),
-        selected_category
-    )
+            google_df = search_google_places(
+                food.strip(),
+                selected_category
+            )
 
             if google_df.empty:
 
